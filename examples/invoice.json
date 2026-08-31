@@ -1,0 +1,40 @@
+{
+  "voucherDate": "2026-08-31T00:00:00.000+02:00",
+  "address": {
+    "name": "Muster GmbH",
+    "street": "Musterstraße 1",
+    "city": "Berlin",
+    "zip": "10115",
+    "countryCode": "DE"
+  },
+  "lineItems": [
+    {
+      "type": "custom",
+      "name": "Beratung",
+      "quantity": 1,
+      "unitName": "Stunde",
+      "unitPrice": {
+        "currency": "EUR",
+        "netAmount": 100,
+        "taxRatePercentage": 19
+      },
+      "discountPercentage": 0
+    }
+  ],
+  "totalPrice": {
+    "currency": "EUR"
+  },
+  "taxConditions": {
+    "taxType": "net"
+  },
+  "paymentConditions": {
+    "paymentTermLabel": "14 Tage netto",
+    "paymentTermDuration": 14
+  },
+  "shippingConditions": {
+    "shippingType": "none"
+  },
+  "title": "Rechnung",
+  "introduction": "Für unsere Leistungen berechnen wir:",
+  "remark": "Vielen Dank für die Zusammenarbeit."
+}
