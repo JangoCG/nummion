@@ -22,6 +22,7 @@ func newVouchersCommand(opts *options) *cobra.Command {
 	vouchers := &cobra.Command{Use: "vouchers", Short: "Buchhaltungsbelege verwalten", Args: cobra.NoArgs}
 	vouchers.AddCommand(newVoucherListCommand(opts, "any"))
 	vouchers.AddCommand(newVouchersGetCommand(opts))
+	vouchers.AddCommand(newVouchersDownloadCommand(opts))
 	vouchers.AddCommand(newVouchersUploadCommand(opts))
 	vouchers.AddCommand(newVouchersAttachCommand(opts))
 	return vouchers
@@ -44,6 +45,61 @@ func newVouchersGetCommand(opts *options) *cobra.Command {
 			return opts.printer(cmd).Data(raw)
 		},
 	}
+}
+
+func newVouchersDownloadCommand(opts *options) *cobra.Command {
+	var outputPath string
+	var format string
+	var force bool
+	command := &cobra.Command{
+		Use:   "download FILE_ID",
+		Short: "Datei eines Buchhaltungsbelegs herunterladen",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			accept := "*/*"
+			extension := ""
+			switch strings.ToLower(format) {
+			case "auto":
+			case "pdf":
+				accept = "application/pdf"
+				extension = ".pdf"
+			case "xml":
+				accept = "application/xml"
+				extension = ".xml"
+			default:
+				return fmt.Errorf("ungültiges Format %q; erlaubt sind auto, pdf und xml", format)
+			}
+			client, err := opts.client()
+			if err != nil {
+				return err
+			}
+			req, err := client.NewRequest(cmd.Context(), http.MethodGet, "/v1/files/"+url.PathEscape(args[0]), nil, nil)
+			if err != nil {
+				return err
+			}
+			req.Header.Set("Accept", accept)
+			resp, err := client.Do(req)
+			if err != nil {
+				return err
+			}
+			target, err := writeDownload(resp, outputPath, "voucher-"+safeBaseName(args[0])+extension, force)
+			if err != nil {
+				return err
+			}
+			if opts.json {
+				return opts.printer(cmd).Object(map[string]any{"ok": true, "path": target})
+			}
+			if opts.quiet {
+				_, err = fmt.Fprintln(cmd.OutOrStdout(), target)
+				return err
+			}
+			return opts.printer(cmd).Success("Gespeichert: " + target)
+		},
+	}
+	command.Flags().StringVarP(&outputPath, "output", "o", "", "Zieldatei; standardmäßig der Server-Dateiname")
+	command.Flags().StringVar(&format, "format", "auto", "Dateiformat: auto, pdf oder xml")
+	command.Flags().BoolVar(&force, "force", false, "vorhandene Zieldatei überschreiben")
+	return command
 }
 
 func newVouchersUploadCommand(opts *options) *cobra.Command {

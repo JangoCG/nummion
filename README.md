@@ -15,6 +15,7 @@ Das Projekt ist für den privaten Gebrauch gedacht und weder mit Lexware noch mi
 - lokales Rate-Limiting sowie Retry bei HTTP 429
 - `--dry-run` für schreibende Arbeitsabläufe
 - sichere Kontakt-Updates durch Zusammenführen mit dem aktuellen Datensatz und optimistisches Locking über das Lexware-`version`-Feld
+- eingebetteter Agent-Skill für Codex, Claude Code und den gemeinsamen `~/.agents/skills`-Standard
 
 ## Voraussetzungen und Build
 
@@ -26,12 +27,19 @@ mise install
 mise exec -- make check
 ```
 
-Das Binary liegt danach unter `bin/lexware`.
-
-Optional lokal installieren:
+Das Binary liegt danach unter `bin/lexware`. Lokal in `~/.local/bin` installieren:
 
 ```bash
-install -m 0755 bin/lexware ~/.local/bin/lexware
+mise exec -- make install VERSION=0.1.0-dev
+lexware --version
+```
+
+Nach späteren Änderungen aktualisiert derselbe `make install`-Befehl die lokale Installation.
+
+Den mitgelieferten Agent-Skill installierst du anschließend mit:
+
+```bash
+lexware skill install
 ```
 
 ## API-Key einrichten
@@ -67,8 +75,13 @@ lexware contacts update CONTACT_ID --from contact-update.json
 # Nur wenn bewusst ein vollständiger Ersatz gesendet werden soll:
 lexware contacts update CONTACT_ID --from complete-contact.json --replace
 
+# Buchungskategorien
+lexware posting-categories list --json
+
 # Rechnungen: Ohne --finalize entsteht ein Entwurf.
 lexware invoices list --status any
+lexware invoices list --year 2025
+lexware invoices get INVOICE_ID
 lexware invoices create --from examples/invoice.json --dry-run
 lexware invoices create --from examples/invoice.json
 lexware invoices create --from examples/invoice.json --finalize
@@ -76,6 +89,10 @@ lexware invoices download INVOICE_ID --format pdf
 
 # Eingangsbelege
 lexware vouchers list --type purchaseinvoice --status any
+lexware vouchers list --year 2025
+lexware vouchers list --year 2025 --json > belege-2025.json
+lexware vouchers get VOUCHER_ID --json
+lexware vouchers download FILE_ID --output beleg.pdf
 lexware vouchers upload ./eingangsrechnung.pdf --dry-run
 lexware vouchers upload ./eingangsrechnung.pdf
 lexware vouchers attach VOUCHER_ID ./anlage.pdf
@@ -87,10 +104,36 @@ JSON kann auch über stdin übergeben werden:
 generate-contact | lexware contacts create --from - --json
 ```
 
+## AI-Agent-Integration
+
+Wie `hey-cli` enthält das Binary eine vollständige `SKILL.md`, damit Coding-Agents die
+Kommandos, IDs, Sicherheitsregeln und schreibenden Abläufe der CLI kennen:
+
+```bash
+lexware skill           # eingebettete SKILL.md auf stdout ausgeben
+lexware skill install   # global und für erkannte Agents installieren
+```
+
+Die Installation legt die gemeinsame Kopie unter
+`~/.agents/skills/lexware/SKILL.md` ab. Wenn Claude Code erkannt wird, entsteht unter
+`~/.claude/skills/lexware` ein Symlink auf diese Kopie; falls Symlinks nicht verfügbar
+sind, wird sicher kopiert. Wenn Codex erkannt wird, wird zusätzlich nach
+`$CODEX_HOME/skills/lexware/SKILL.md` beziehungsweise
+`~/.codex/skills/lexware/SKILL.md` kopiert.
+
+Jeder von der CLI verwaltete Skill-Ordner trägt den Marker
+`.managed-by-lexware-cli`. Ein vorhandener unmarkierter Ordner oder fremder Symlink wird
+niemals überschrieben. Nach einem Versionswechsel aktualisiert die CLI nur ihre eigenen,
+markierten Installationen automatisch.
+
+Der Skill weist Agents unter anderem an, Reads mit `--json` auszuführen, für
+Schreibvorgänge zuerst `--dry-run` zu verwenden, Rechnungen standardmäßig als Entwurf zu
+erstellen und API-Keys niemals über Chat oder Kommandozeilenargumente zu verarbeiten.
+
 ## Sicherheitsregeln
 
 - `auth set` fragt den Key verdeckt ab. `--token` ist nur für Sonderfälle gedacht, weil Shell-History und Prozesslisten den Wert offenlegen können.
-- Downloads werden mit Dateirechten `0600` angelegt und ohne `--force` niemals überschrieben.
+- Rechnungs- und Belegdownloads werden mit Dateirechten `0600` angelegt und ohne `--force` niemals überschrieben.
 - Beleg-Uploads werden vorab auf erlaubtes Format und die Lexware-Grenze von 5 MiB geprüft.
 - `invoices create` erzeugt standardmäßig einen Entwurf. Eine sofortige Finalisierung erfordert ausdrücklich `--finalize`.
 - Bei HTTP 504 werden schreibende Requests nicht automatisch wiederholt, da Lexware darauf hinweist, dass die Verarbeitung bereits erfolgt sein kann.
@@ -116,4 +159,5 @@ Die Implementierung verwendet ausschließlich die dokumentierte Basis-URL `https
 
 ## Lizenz
 
-MIT. Siehe [LICENSE](LICENSE).
+MIT. Siehe [LICENSE](LICENSE). Die aus `hey-cli` adaptierten Bestandteile und deren
+Lizenzhinweis stehen in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

@@ -21,6 +21,7 @@ func newVoucherListCommand(opts *options, defaultType string) *cobra.Command {
 		updatedDateFrom string
 		updatedDateTo   string
 		archived        bool
+		year            int
 		page            int
 		size            int
 		all             bool
@@ -33,6 +34,18 @@ func newVoucherListCommand(opts *options, defaultType string) *cobra.Command {
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			if err := validatePaging(page, size); err != nil {
 				return err
+			}
+			if command.Flags().Changed("year") {
+				if year < 1000 || year > 9999 {
+					return fmt.Errorf("--year muss ein vierstelliges Jahr sein")
+				}
+				if command.Flags().Changed("voucher-date-from") || command.Flags().Changed("voucher-date-to") {
+					return fmt.Errorf("--year kann nicht mit --voucher-date-from oder --voucher-date-to kombiniert werden")
+				}
+				voucherDateFrom = fmt.Sprintf("%04d-01-01", year)
+				voucherDateTo = fmt.Sprintf("%04d-12-31", year)
+				all = true
+				page = 0
 			}
 			client, err := opts.client()
 			if err != nil {
@@ -99,6 +112,7 @@ func newVoucherListCommand(opts *options, defaultType string) *cobra.Command {
 	command.Flags().StringVar(&contactID, "contact-id", "", "Kontakt-ID")
 	command.Flags().StringVar(&voucherDateFrom, "voucher-date-from", "", "Belegdatum ab (YYYY-MM-DD)")
 	command.Flags().StringVar(&voucherDateTo, "voucher-date-to", "", "Belegdatum bis (YYYY-MM-DD)")
+	command.Flags().IntVarP(&year, "year", "y", 0, "alle Belege eines Kalenderjahres abrufen, z. B. 2025")
 	command.Flags().StringVar(&createdDateFrom, "created-from", "", "Erstellungsdatum ab (YYYY-MM-DD)")
 	command.Flags().StringVar(&createdDateTo, "created-to", "", "Erstellungsdatum bis (YYYY-MM-DD)")
 	command.Flags().StringVar(&updatedDateFrom, "updated-from", "", "Änderungsdatum ab (YYYY-MM-DD)")
@@ -106,6 +120,6 @@ func newVoucherListCommand(opts *options, defaultType string) *cobra.Command {
 	command.Flags().BoolVar(&archived, "archived", false, "archivierte bzw. nicht archivierte Belege filtern")
 	command.Flags().IntVar(&page, "page", 0, "Seitennummer (ab 0)")
 	command.Flags().IntVar(&size, "size", 25, "Seitengröße (maximal 250)")
-	command.Flags().BoolVar(&all, "all", false, "alle Seiten abrufen")
+	command.Flags().BoolVar(&all, "all", false, "alle Seiten abrufen; bei --year automatisch aktiv")
 	return command
 }

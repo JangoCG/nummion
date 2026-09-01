@@ -29,7 +29,10 @@ func NewRootCommand(version string) *cobra.Command {
 		Short:         "Inoffizielle CLI für die Lexware Office Public API",
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Args:          cobra.NoArgs,
+		PersistentPostRun: func(_ *cobra.Command, _ []string) {
+			refreshSkillsIfVersionChanged(opts.version)
+		},
+		Args: cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return cmd.Help()
 		},
@@ -46,6 +49,8 @@ func NewRootCommand(version string) *cobra.Command {
 	root.AddCommand(newContactsCommand(opts))
 	root.AddCommand(newInvoicesCommand(opts))
 	root.AddCommand(newVouchersCommand(opts))
+	root.AddCommand(newPostingCategoriesCommand(opts))
+	root.AddCommand(newSkillCommand(opts))
 	return root
 }
 
