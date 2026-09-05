@@ -18,7 +18,7 @@ func TestJSONSetsAuthenticationAndUserAgent(t *testing.T) {
 		if got := r.Header.Get("Authorization"); got != "Bearer secret" {
 			t.Fatalf("Authorization = %q", got)
 		}
-		if got := r.Header.Get("User-Agent"); got != "lexware-cli/test" {
+		if got := r.Header.Get("User-Agent"); got != "nummion/test" {
 			t.Fatalf("User-Agent = %q", got)
 		}
 		w.Header().Set("Content-Type", "application/json")
@@ -26,7 +26,7 @@ func TestJSONSetsAuthenticationAndUserAgent(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client, err := New(server.URL, "secret", "lexware-cli/test", time.Second)
+	client, err := New(server.URL, "secret", "nummion/test", time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}

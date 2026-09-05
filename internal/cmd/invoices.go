@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"lexware-cli/internal/payload"
+	"github.com/JangoCG/nummion/internal/payload"
 )
 
 func newInvoicesCommand(opts *options) *cobra.Command {

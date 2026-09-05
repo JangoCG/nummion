@@ -9,9 +9,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"lexware-cli/internal/api"
-	"lexware-cli/internal/credentials"
-	"lexware-cli/internal/output"
+	"github.com/JangoCG/nummion/internal/api"
+	"github.com/JangoCG/nummion/internal/credentials"
+	"github.com/JangoCG/nummion/internal/output"
 )
 
 type options struct {
@@ -25,7 +25,7 @@ type options struct {
 func NewRootCommand(version string) *cobra.Command {
 	opts := &options{version: version}
 	root := &cobra.Command{
-		Use:           "lexware",
+		Use:           "num",
 		Short:         "Inoffizielle CLI für die Lexware Office Public API",
 		SilenceUsage:  true,
 		SilenceErrors: true,
@@ -37,7 +37,7 @@ func NewRootCommand(version string) *cobra.Command {
 			return cmd.Help()
 		},
 	}
-	root.SetVersionTemplate("lexware {{.Version}}\n")
+	root.SetVersionTemplate("num {{.Version}}\n")
 	root.Version = version
 	root.PersistentFlags().StringVar(&opts.baseURL, "base-url", api.DefaultBaseURL, "API-Basis-URL")
 	root.PersistentFlags().DurationVar(&opts.timeout, "timeout", 30*time.Second, "HTTP-Timeout")
@@ -59,7 +59,7 @@ func (o *options) client() (*api.Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return api.New(o.baseURL, resolved.Token, "lexware-cli/"+o.version, o.timeout)
+	return api.New(o.baseURL, resolved.Token, "nummion/"+o.version, o.timeout)
 }
 
 func (o *options) printer(cmd *cobra.Command) output.Printer {

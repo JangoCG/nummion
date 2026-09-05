@@ -2,3 +2,6 @@
 /dist/
 *.out
 .DS_Store
+
+__pycache__/
+/completions/

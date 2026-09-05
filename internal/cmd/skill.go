@@ -5,14 +5,14 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"lexware-cli/skills"
+	"github.com/JangoCG/nummion/skills"
 )
 
 func newSkillCommand(opts *options) *cobra.Command {
 	command := &cobra.Command{
 		Use:   "skill",
 		Short: "Eingebetteten Agent-Skill anzeigen oder installieren",
-		Long:  "Gibt die in lexware-cli eingebettete SKILL.md aus oder installiert sie für erkannte Coding-Agents.",
+		Long:  "Gibt die in Nummion eingebettete SKILL.md aus oder installiert sie für erkannte Coding-Agents.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			data, err := skills.FS.ReadFile("lexware/SKILL.md")

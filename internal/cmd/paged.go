@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"lexware-cli/internal/api"
+	"github.com/JangoCG/nummion/internal/api"
 )
 
 type pageEnvelope struct {

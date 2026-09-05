@@ -15,7 +15,7 @@ const (
 	envName     = "LEXWARE_API_KEY"
 )
 
-var ErrNotConfigured = errors.New("kein API-Key konfiguriert; führe zuerst `lexware auth set` aus")
+var ErrNotConfigured = errors.New("kein API-Key konfiguriert; führe zuerst `num auth set` aus")
 
 type Resolved struct {
 	Token  string

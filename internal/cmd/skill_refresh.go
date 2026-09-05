@@ -4,8 +4,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"lexware-cli/internal/harness"
-	"lexware-cli/skills"
+	"github.com/JangoCG/nummion/internal/harness"
+	"github.com/JangoCG/nummion/skills"
 )
 
 // refreshSkillsIfVersionChanged keeps already-installed managed copies in

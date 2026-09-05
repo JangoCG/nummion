@@ -262,3 +262,19 @@ func TestVoucherDownloadDoesNotOverwriteWithoutForce(t *testing.T) {
 		t.Fatalf("data = %q", data)
 	}
 }
+
+func TestNumEntrypointAndCompletions(t *testing.T) {
+	isolatedAgentHome(t)
+	version, err := executeCommand(t, "--version")
+	if err != nil || version != "num test\n" {
+		t.Fatalf("version = %q, err = %v", version, err)
+	}
+	for _, shell := range []string{"bash", "zsh", "fish", "powershell"} {
+		t.Run(shell, func(t *testing.T) {
+			completion, err := executeCommand(t, "completion", shell)
+			if err != nil || !strings.Contains(completion, "num") || strings.Contains(completion, "lexware") {
+				t.Fatalf("completion is not for num: %q, err = %v", completion, err)
+			}
+		})
+	}
+}

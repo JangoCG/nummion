@@ -1,4 +1,4 @@
-module lexware-cli
+module github.com/JangoCG/nummion
 
 go 1.25.0
 

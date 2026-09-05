@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"lexware-cli/internal/harness"
-	"lexware-cli/skills"
+	"github.com/JangoCG/nummion/internal/harness"
+	"github.com/JangoCG/nummion/skills"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 type unmanagedSkillDirError struct{ dir string }
 
 func (e *unmanagedSkillDirError) Error() string {
-	return fmt.Sprintf("%s existiert, wurde aber nicht von lexware-cli angelegt; verschiebe den Ordner, bevor der Lexware-Skill dort installiert wird", e.dir)
+	return fmt.Sprintf("%s existiert, wurde aber nicht von Nummion angelegt; verschiebe den Ordner, bevor der Lexware-Skill dort installiert wird", e.dir)
 }
 
 // claimSkillDir is the ownership gate for every skill write. It claims a
@@ -53,7 +53,7 @@ func claimSkillDir(dir string) error {
 }
 
 func writeOwnershipMarker(dir string) error {
-	content := []byte("This skill is managed by lexware-cli. Manual edits will be overwritten on upgrade.\n")
+	content := []byte("This skill is managed by Nummion. Manual edits will be overwritten on upgrade.\n")
 	if err := writeSkillFile(filepath.Join(dir, ownershipMarkerFile), content); err != nil {
 		return fmt.Errorf("Besitzmarker konnte nicht geschrieben werden: %w", err)
 	}

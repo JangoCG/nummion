@@ -1,4 +1,4 @@
-// Package skills embeds the agent skill shipped with lexware-cli.
+// Package skills embeds the agent skill shipped with Nummion.
 package skills
 
 import "embed"

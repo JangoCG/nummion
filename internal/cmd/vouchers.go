@@ -13,7 +13,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"lexware-cli/internal/api"
+	"github.com/JangoCG/nummion/internal/api"
 )
 
 const maxVoucherFileSize = 5 << 20

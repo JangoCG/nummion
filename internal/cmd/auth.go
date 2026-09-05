@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 
-	"lexware-cli/internal/api"
-	"lexware-cli/internal/credentials"
+	"github.com/JangoCG/nummion/internal/api"
+	"github.com/JangoCG/nummion/internal/credentials"
 )
 
 func newAuthCommand(opts *options) *cobra.Command {
@@ -76,7 +76,7 @@ func newAuthStatusCommand(opts *options) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			client, err := api.New(opts.baseURL, resolved.Token, "lexware-cli/"+opts.version, opts.timeout)
+			client, err := api.New(opts.baseURL, resolved.Token, "nummion/"+opts.version, opts.timeout)
 			if err != nil {
 				return err
 			}

@@ -1,15 +1,16 @@
-.PHONY: build install test fmt fmt-check vet check clean
+.PHONY: build install test fmt fmt-check vet check completions installer-test release-check snapshot clean
 
 VERSION ?= dev
 PREFIX ?= $(HOME)/.local
 
 build:
 	@mkdir -p bin
-	go build -trimpath -ldflags "-s -w -X main.version=$(VERSION)" -o bin/lexware ./cmd/lexware
+	go build -trimpath -ldflags "-s -w -X main.version=$(VERSION)" -o bin/num ./cmd/num
 
 install: build
 	install -d "$(PREFIX)/bin"
-	install -m 0755 bin/lexware "$(PREFIX)/bin/lexware"
+	install -m 0755 bin/num "$(PREFIX)/bin/num"
+	ln -sf num "$(PREFIX)/bin/lexware"
 
 test:
 	go test ./...
@@ -25,5 +26,19 @@ vet:
 
 check: fmt-check vet test build
 
+completions:
+	bash scripts/completions.sh
+
+installer-test:
+	python3 -m unittest discover -s scripts -p 'test_*.py'
+
+release-check:
+	goreleaser check
+	bash -n scripts/install.sh scripts/completions.sh
+	$(MAKE) installer-test
+
+snapshot: release-check
+	goreleaser release --snapshot --clean --skip=publish,sign
+
 clean:
-	rm -rf bin dist
+	rm -rf bin dist completions

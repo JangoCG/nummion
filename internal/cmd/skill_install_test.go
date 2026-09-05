@@ -28,7 +28,7 @@ func TestSkillCommandPrintsEmbeddedSkill(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(output, "name: lexware") || !strings.Contains(output, "lexware invoices get <invoice_id> --json") {
+	if !strings.Contains(output, "name: lexware") || !strings.Contains(output, "num invoices get <invoice_id> --json") {
 		t.Fatalf("unexpected skill output: %q", output)
 	}
 }

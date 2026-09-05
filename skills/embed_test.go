@@ -13,9 +13,9 @@ func TestLexwareSkillContainsAgentSafetyRules(t *testing.T) {
 	content := string(data)
 
 	for _, want := range []string{
-		"lexware invoices list --year 2025 --json",
-		"lexware invoices get <invoice_id> --json",
-		"Never run `lexware auth set` unattended",
+		"num invoices list --year 2025 --json",
+		"num invoices get <invoice_id> --json",
+		"Never run `num auth set` unattended",
 		"never pass `--token`",
 		"--finalize",
 		"--dry-run --json",
