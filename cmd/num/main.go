@@ -1,3 +1,5 @@
+// Compatibility entry point for go install github.com/JangoCG/nummion/cmd/num.
+// Release builds use cmd/nummion and name the executable num.
 package main
 
 import (

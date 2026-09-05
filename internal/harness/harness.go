@@ -8,10 +8,10 @@ import (
 	"strings"
 )
 
-// SkillOwnershipMarker marks a skill directory as written by lexware-cli.
-const SkillOwnershipMarker = ".managed-by-lexware-cli"
+// SkillOwnershipMarker marks a skill directory as written by Nummion.
+const SkillOwnershipMarker = ".managed-by-nummion"
 
-// SkillDirOwned reports whether lexware-cli wrote the skill directory at dir.
+// SkillDirOwned reports whether Nummion wrote the skill directory at dir.
 func SkillDirOwned(dir string) bool {
 	return dir != "" && RegularSkillFile(filepath.Join(dir, SkillOwnershipMarker))
 }
@@ -71,11 +71,11 @@ func CodexHome() string {
 	return filepath.Join(filepath.Clean(home), ".codex")
 }
 
-// CodexSkillPath returns where Codex reads the Lexware skill from.
+// CodexSkillPath returns where Codex reads the Nummion skill from.
 func CodexSkillPath() string {
 	home := CodexHome()
 	if home == "" {
 		return ""
 	}
-	return filepath.Join(home, "skills", "lexware", "SKILL.md")
+	return filepath.Join(home, "skills", "nummion", "SKILL.md")
 }

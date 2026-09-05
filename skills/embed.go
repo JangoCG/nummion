@@ -3,7 +3,7 @@ package skills
 
 import "embed"
 
-// FS contains the Lexware agent skill exactly as installed by the CLI.
+// FS contains the Nummion agent skill exactly as installed by the CLI.
 //
-//go:embed lexware
+//go:embed nummion
 var FS embed.FS

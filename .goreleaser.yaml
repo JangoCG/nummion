@@ -7,7 +7,7 @@ before:
 
 builds:
   - id: num
-    main: ./cmd/num
+    main: ./cmd/nummion
     binary: num
     env: [CGO_ENABLED=0]
     goos: [darwin, linux, windows]
