@@ -1,0 +1,2 @@
+# Keep Go sources, shell scripts, and embedded skills identical on every runner.
+* text=auto eol=lf
