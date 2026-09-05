@@ -57,7 +57,8 @@ try {
     $staged = Join-Path $binDir ('.num-install-' + [guid]::NewGuid().ToString() + '.exe')
     Copy-Item -LiteralPath $downloaded -Destination $staged
     if (Test-Path -LiteralPath $target) {
-        [IO.File]::Replace($staged, $target, $null)
+        # A PowerShell $null binds to an empty string for this .NET overload.
+        [IO.File]::Replace($staged, $target, [System.Management.Automation.Language.NullString]::Value)
     } else {
         [IO.File]::Move($staged, $target)
     }
