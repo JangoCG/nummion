@@ -170,7 +170,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 		}
 
 		data, readErr := io.ReadAll(io.LimitReader(resp.Body, 2<<20))
-		resp.Body.Close()
+		_ = resp.Body.Close() // Preserve the HTTP/read error; closing this response adds no useful result.
 		if readErr != nil {
 			return nil, fmt.Errorf("API-Fehlerantwort konnte nicht gelesen werden: %w", readErr)
 		}

@@ -1,4 +1,4 @@
-.PHONY: build install test fmt fmt-check vet check completions installer-test release-check snapshot clean
+.PHONY: build install test fmt fmt-check vet check completions installer-test release-check snapshot security-check hooks clean
 
 VERSION ?= dev
 PREFIX ?= $(HOME)/.local
@@ -39,6 +39,14 @@ release-check:
 
 snapshot: release-check
 	goreleaser release --snapshot --clean --skip=publish,sign
+
+security-check:
+	gitleaks git . --log-opts="--all --full-history" --redact=100 --no-banner --ignore-gitleaks-allow
+	python3 scripts/verify-secret-scanner.py
+	go run golang.org/x/vuln/cmd/govulncheck@v1.7.0 ./...
+
+hooks:
+	pre-commit install --install-hooks
 
 clean:
 	rm -rf bin dist completions

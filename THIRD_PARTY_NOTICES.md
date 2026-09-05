@@ -1,7 +1,8 @@
 # Third-party notices
 
 The agent-skill embedding, ownership-marker, safe installation, Claude symlink,
-Codex copy, and refresh design in this project is adapted from
+Codex copy, and refresh design, along with parts of the repository security
+workflow configuration, are adapted from
 [`basecamp/hey-cli`](https://github.com/basecamp/hey-cli).
 
 ## hey-cli

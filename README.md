@@ -594,6 +594,10 @@ The implementation uses only the documented Lexware Office base URL, `https://ap
 - [API key management](https://app.lexware.de/addons/public-api)
 - [Public API license and terms of use](https://agb.lexware.de/lexware-office/public-api-lizenz--und-nutzungsbedingungen)
 
+## Security
+
+Secret scanning, dependency checks and release protections are described in [SECURITY.md](SECURITY.md). Install local commit and push checks with `mise exec -- make hooks`.
+
 ## License
 
 This project is licensed under the MIT License. See [`LICENSE`](LICENSE).

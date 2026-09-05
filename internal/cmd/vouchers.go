@@ -181,7 +181,7 @@ func validateVoucherFile(path string) (os.FileInfo, error) {
 }
 
 func uploadVoucherFile(cmd *cobra.Command, opts *options, path, filePath string, includeType bool) error {
-	file, err := os.Open(filePath)
+	file, err := os.Open(filePath) // #nosec G304 -- The operator explicitly selects the local voucher file to upload.
 	if err != nil {
 		return err
 	}

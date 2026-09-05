@@ -1,0 +1,14 @@
+title = "Nummion secret scanning"
+
+[extend]
+useDefault = true
+
+# Test files are deliberately included. Allowlist only individually reviewed
+# synthetic fixtures, never all *_test.go files or complete directories.
+[[rules]]
+id = "lexware-api-key"
+description = "Lexware Office API key assignment"
+regex = '''(?i)lexware_api_key[\s"']*[:=][\s"']*([a-z0-9_./+=-]{20,})'''
+secretGroup = 1
+entropy = 3.5
+keywords = ["lexware_api_key"]

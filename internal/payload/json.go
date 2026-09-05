@@ -20,7 +20,7 @@ func ReadJSON(path string, stdin io.Reader) ([]byte, map[string]any, error) {
 	case "-":
 		data, err = io.ReadAll(io.LimitReader(stdin, 10<<20))
 	default:
-		data, err = os.ReadFile(path)
+		data, err = os.ReadFile(path) // #nosec G304 -- --from is an explicit local file chosen by the CLI operator.
 	}
 	if err != nil {
 		return nil, nil, fmt.Errorf("JSON-Eingabe konnte nicht gelesen werden: %w", err)

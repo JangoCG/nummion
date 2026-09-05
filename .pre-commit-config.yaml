@@ -1,0 +1,49 @@
+default_install_hook_types: [pre-commit, pre-push]
+default_language_version:
+  python: python3.13
+
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks-system
+        entry: mise exec -- gitleaks git --pre-commit --redact=100 --staged --verbose
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+        args: [--ignore-gitleaks-allow]
+
+  - repo: local
+    hooks:
+      - id: secret-history
+        name: Scan Git history for secrets
+        entry: mise exec -- gitleaks git --log-opts=--all --redact=100 --no-banner --ignore-gitleaks-allow
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]
+      - id: go-mod-tidy
+        name: Check Go module metadata
+        entry: bash -c 'mise exec -- go mod tidy && git diff --exit-code go.mod go.sum'
+        language: system
+        pass_filenames: false
+        files: '(\.go$|go\.mod$|go\.sum$)'
+        stages: [pre-commit]
+      - id: go-test-short
+        name: Go tests
+        entry: mise exec -- go test -short ./...
+        language: system
+        pass_filenames: false
+        files: '(\.go$|go\.mod$|go\.sum$)'
+        stages: [pre-push]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-case-conflict

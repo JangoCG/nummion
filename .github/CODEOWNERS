@@ -1,0 +1,6 @@
+* @JangoCG
+.github/ @JangoCG
+.goreleaser.yaml @JangoCG
+.gitleaks.toml @JangoCG
+.pre-commit-config.yaml @JangoCG
+scripts/ @JangoCG

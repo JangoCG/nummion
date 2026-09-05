@@ -31,7 +31,7 @@ func claimSkillDir(dir string) error {
 	info, err := os.Lstat(dir)
 	switch {
 	case os.IsNotExist(err):
-		if mkErr := os.MkdirAll(dir, 0o755); mkErr != nil {
+		if mkErr := os.MkdirAll(dir, 0o755); mkErr != nil { // #nosec G301 -- Public documentation directory, never credentials.
 			return fmt.Errorf("Skill-Ordner konnte nicht angelegt werden: %w", mkErr)
 		}
 	case err != nil:
@@ -70,6 +70,7 @@ func writeSkillFile(path string, data []byte) error {
 	} else if !os.IsNotExist(err) {
 		return fmt.Errorf("%s konnte nicht geprüft werden: %w", path, err)
 	}
+	// #nosec G306 G703 -- Public embedded skill data; callers derive paths from operator-owned agent directories and check ownership.
 	return os.WriteFile(path, data, 0o644)
 }
 
@@ -182,7 +183,7 @@ func linkSkillToClaude() (string, error) {
 	if !baselineSkillInstalled() {
 		return "", &unmanagedSkillDirError{dir: skillDir}
 	}
-	if err := os.MkdirAll(linkDir, 0o755); err != nil {
+	if err := os.MkdirAll(linkDir, 0o755); err != nil { // #nosec G301 -- Links to public agent documentation.
 		return "", fmt.Errorf("Claude-Skill-Ordner konnte nicht angelegt werden: %w", err)
 	}
 	if err := removeExistingSkillLink(linkPath); err != nil {
@@ -297,7 +298,7 @@ func copySkillFiles(src, dst string) error {
 		return err
 	}
 	for _, name := range []string{skillFilename, installedVersionFile, ownershipMarkerFile} {
-		data, err := os.ReadFile(filepath.Join(src, name))
+		data, err := os.ReadFile(filepath.Join(src, name)) // #nosec G304 -- Fixed skill filenames under an operator-owned source directory.
 		if err != nil {
 			if os.IsNotExist(err) {
 				continue

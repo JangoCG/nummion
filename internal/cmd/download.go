@@ -32,7 +32,7 @@ func writeDownload(resp *http.Response, requestedPath, fallbackName string, forc
 	}
 	complete := false
 	defer func() {
-		file.Close()
+		_ = file.Close() // Cleanup only; the successful write path checks Close below.
 		if !complete {
 			_ = os.Remove(target)
 		}

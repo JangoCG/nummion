@@ -5,3 +5,20 @@
 
 __pycache__/
 /completions/
+
+# Local credentials and signing material. Example templates contain no secrets.
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.p8
+*.p12
+*.pfx
+*.keystore
+*.jks
+*.mobileprovision
+/secrets/
+/credentials.json
+/service-account*.json
