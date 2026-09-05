@@ -33,7 +33,7 @@ The commands below become available after the first public release of `JangoCG/n
 
 ### mise (macOS, Linux, Windows)
 
-Like [HEY CLI](https://github.com/basecamp/hey-cli/blob/main/docs/install.md), Nummion distributes prebuilt binaries through GitHub Releases:
+Nummion distributes prebuilt binaries through GitHub Releases:
 
 ```bash
 mise use -g github:JangoCG/nummion
@@ -437,7 +437,7 @@ The input must contain exactly one JSON object. Multiple values, arrays, and emp
 
 ## AI agent integration
 
-Like [`basecamp/hey-cli`](https://github.com/basecamp/hey-cli), Nummion includes an embedded agent skill. It teaches agents the CLI's commands, ID relationships, output formats, and safety rules.
+Nummion includes an embedded agent skill. It teaches agents the CLI's commands, ID relationships, output formats, and safety rules.
 
 ```bash
 num skill           # print the embedded SKILL.md to stdout
@@ -598,4 +598,4 @@ The implementation uses only the documented Lexware Office base URL, `https://ap
 
 This project is licensed under the MIT License. See [`LICENSE`](LICENSE).
 
-Parts of the agent-skill integration were adapted from [`basecamp/hey-cli`](https://github.com/basecamp/hey-cli). Copyright and license notices are available in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+Agent integration and release tooling are based on [HEY CLI](https://github.com/basecamp/hey-cli). See [third-party notices](THIRD_PARTY_NOTICES.md).
