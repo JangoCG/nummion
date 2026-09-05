@@ -1,20 +1,12 @@
 # Releasing Nummion
 
-Nummion uses the same distribution model as [HEY CLI](https://github.com/basecamp/hey-cli/blob/main/docs/install.md): a tagged GitHub Release contains ready-to-run binaries, package-manager manifests point to those binaries, and installer scripts download the appropriate archive. Every installation exposes `num` (`num.exe` on Windows).
+Version tags trigger [the release workflow](.github/workflows/release.yml). It runs CI and security checks, builds packages with GoReleaser, signs checksums with Sigstore, and publishes a GitHub Release. Stable releases also update the Homebrew cask and Scoop manifest.
 
-## One-time repository setup
+For installation and updates, see the [README](README.md#installation).
 
-The public repository and release configuration use `JangoCG/nummion`. The private `nummion-release` GitHub App is installed only on `JangoCG/homebrew-tap`, and its credentials are configured in the `release` environment. The checklist below documents the setup for maintainers.
+## Before publishing
 
-1. Review and commit the local changes, then merge them into `main` through a pull request with successful required checks.
-2. Make the GitHub repository public when ready to publish its contents and history. Public installer links and the public Homebrew/Scoop tap require publicly downloadable releases. The workflow refuses publication from a different or private repository.
-3. Create a dedicated private GitHub App owned by `JangoCG`, with **Contents: read and write** and the required read-only Metadata permission. Disable webhooks and user authorization; install it only on `JangoCG/homebrew-tap`. In Nummion's **release environment**, store its client ID as the variable `RELEASE_CLIENT_ID` and its private key as the secret `RELEASE_APP_PRIVATE_KEY`. The workflow creates and revokes a short-lived installation token for each stable release. Both Homebrew (`Casks/nummion.rb`) and Scoop (`bucket/nummion.json`) use that token. GitHub's automatic `GITHUB_TOKEN` cannot write to a different repository. Never commit the private key or pass it in a command-line argument.
-4. The `release` environment is configured to accept only `v*` tags. Keep GitHub Actions enabled. The release job declares `contents: write` for release uploads and `id-token: write` for keyless signing; CI has read-only permissions.
-5. For macOS signing, supply the Apple credentials described below. Review the first generated Homebrew cask and Scoop manifest before promoting the first stable release.
-
-No release, tag, remote rename, visibility change, or secret is created by `make check`, `make release-check`, or `make snapshot`.
-
-## Local checks
+Merge the release commit into `main` with all required checks passing. Validate locally:
 
 ```bash
 mise install
@@ -23,77 +15,48 @@ mise exec -- go test -race ./...
 mise exec -- make snapshot
 ```
 
-`make snapshot` validates the config and Unix installer tests, builds six binaries (macOS/Linux/Windows × amd64/arm64), generates completions, archives, Linux packages, Homebrew/Scoop manifests, and checksums under `dist/`. It skips signing and publishing. Snapshot builds work with an uncommitted worktree and do not require GitHub tokens.
+`make snapshot` builds packages under `dist/` without signing or publishing. It does not require release credentials.
 
-CI runs Go checks and the race detector on Linux, macOS, and Windows, exercises the installers offline, and builds the full snapshot. The Security workflow adds Gitleaks, govulncheck, gosec, Trivy and GitHub Actions audits. Windows installer integration tests use the freshly built Windows executable. Local macOS validation cannot replace a Windows runner or actual hosted signing/publication.
+## Publish a version
 
-## Publish
-
-After the final commit is merged to `main` and CI plus Security are green, create and push an annotated semantic-version tag:
+Create and push an annotated tag for the intended version. For example, for a new `v0.1.1` release:
 
 ```bash
-git tag -a v0.1.0 -m 'Nummion v0.1.0'
-git push origin v0.1.0
+git tag -a v0.1.1 -m 'Nummion v0.1.1'
+git push origin v0.1.1
 ```
 
-Only execute these commands when intentionally publishing. The tag triggers the release workflow. It reruns CI and the Security workflow against the tag commit, verifies that commit belongs to `main`, then GoReleaser builds the artifacts, signs `checksums.txt` with keyless Sigstore, publishes the GitHub Release, and updates the tap. Stable releases require the release GitHub App credentials. A tag such as `v0.1.0-rc.1` creates a prerelease and skips tap updates; it does not replace GitHub's latest stable release.
+The workflow requires a public `JangoCG/nummion` repository and a tag pointing to a commit on `main`. A tag such as `v0.1.1-rc.1` publishes a prerelease without updating the tap or replacing the latest stable release.
 
-Assets include:
+After publication, check the release assets and both package-manager manifests. If a job fails, inspect what was published before retrying. Do not move or delete a published version tag; use a corrected patch release.
 
-- `nummion_<version>_<os>_<arch>.tar.gz` (macOS/Linux), or `.zip` (Windows), containing `num`, license notices, README, and shell completions.
-- Linux `.deb`, `.rpm`, and `.apk` packages.
-- `checksums.txt` and its Sigstore bundle `checksums.txt.bundle`.
-- `install.sh` and `install.ps1`, also covered by the release checksums.
+## Release credentials
 
-If publication fails, inspect the release assets and both tap files before retrying. GitHub Releases and commits to a second repository are not one atomic operation. Do not move or delete a published version tag to repair a failure; prefer a corrected patch release. A failure to update the tap can leave an otherwise usable GitHub Release.
+The `release` environment accepts `v*` tags. Stable releases require the `RELEASE_CLIENT_ID` variable and `RELEASE_APP_PRIVATE_KEY` secret for a GitHub App with Contents write access only to `JangoCG/homebrew-tap`. The workflow creates a short-lived installation token and revokes it at completion. Never commit the private key.
 
-## Signing
+## Verify a download
 
-Sigstore signs release checksums through GitHub's OIDC identity. It needs no stored signing key. To verify a downloaded release with cosign v3+:
+Download `checksums.txt`, `checksums.txt.bundle`, and the desired archive from the same release. With cosign v3+, replace the example tag with that release's version:
 
 ```bash
 cosign verify-blob --bundle checksums.txt.bundle \
-  --certificate-identity 'https://github.com/JangoCG/nummion/.github/workflows/release.yml@refs/tags/v0.1.0' \
+  --certificate-identity 'https://github.com/JangoCG/nummion/.github/workflows/release.yml@refs/tags/v0.1.1' \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com checksums.txt
 sha256sum --check --ignore-missing checksums.txt
 ```
 
-Replace the example version with the exact release tag. Download the bundle, checksum file, and desired archive into the same directory. On macOS, use `shasum -a 256 <archive>` and compare its output with the matching entry. Both installers always check SHA-256; when cosign is available, signature verification must also succeed. They validate the downloaded executable's version before replacing an existing installation.
+On macOS, use `shasum -a 256 <archive>` and compare it with the matching checksum. Both installers verify SHA-256 and also require signature verification to succeed when cosign is available.
 
-Sigstore proves the release's workflow identity; it does not replace operating-system code signing. Optional macOS signing/notarization is configured through these secrets in the **release environment**:
+## Platform signing
+
+Sigstore verifies the release workflow's identity; it does not replace operating-system code signing. Optional macOS signing and notarization require all five secrets in the `release` environment:
 
 | Secret | Value |
 | --- | --- |
-| `MACOS_SIGN_P12` | Base64-encoded Developer ID Application certificate with private key (.p12) |
-| `MACOS_SIGN_PASSWORD` | Password of that .p12 |
+| `MACOS_SIGN_P12` | Base64-encoded Developer ID Application certificate and private key (.p12) |
+| `MACOS_SIGN_PASSWORD` | Password for the .p12 |
 | `MACOS_NOTARY_KEY` | Base64-encoded App Store Connect API private key (.p8) |
 | `MACOS_NOTARY_KEY_ID` | API key ID |
 | `MACOS_NOTARY_ISSUER_ID` | API issuer ID |
 
-All five must be set to enable notarization. Without them, macOS artifacts are not Developer-ID signed/notarized and Gatekeeper can block downloaded binaries, including Homebrew casks. Configure these before advertising frictionless macOS cask installation. Windows Authenticode signing is not configured; Smart App Control can block unsigned executables. Test distribution on a clean machine before the first stable release. No installer disables OS security controls.
-
-## Installation and updates
-
-After the first stable public release:
-
-```bash
-mise use -g github:JangoCG/nummion
-# or
-brew install --cask JangoCG/tap/nummion
-# or
-curl -fsSL https://github.com/JangoCG/nummion/releases/latest/download/install.sh | bash
-
-num --version
-num auth set
-num skill install
-```
-
-See the README for PowerShell, Scoop, Go, and package downloads. Updating uses the original package manager or reruns the installer. Package managers handle PATH and completion installation where supported; the standalone installers print the directory to add to PATH and do not modify shell configuration. There is no built-in self-update command yet.
-
-The legacy keychain service, `LEXWARE_API_KEY`, the `lexware` skill name, and the ownership marker remain unchanged so credentials and managed skill installations are reused. `make install` also installs a local `lexware -> num` compatibility symlink. GitHub Release packages install only `num`.
-
-## Relationship to the reference release setup
-
-The security checks and environment-scoped GitHub App token follow [HEY CLI](https://github.com/basecamp/hey-cli/blob/main/RELEASING.md). Nummion scans test files too and pins a newer Gitleaks release. Basecamp organization bots, their 1Password automation, AUR/Nix publishing and their paid Apple/DigiCert identities cannot be copied as usable account configuration. Nummion does not need the Lexware API key in CI or releases.
-
-The GitHub App registration/installation and real signing credentials must be provisioned for the owner's account. Configuration files do not create or contain those credentials. Apple signing remains optional and Windows Authenticode signing is not yet integrated; an unsigned release is not equivalent to HEY's signed distribution.
+Without these, macOS binaries are not Developer-ID signed or notarized. Windows Authenticode signing is not configured. Operating-system security controls may block unsigned downloads; test installation on clean machines. Installers do not disable those controls.
