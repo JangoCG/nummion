@@ -4,9 +4,9 @@ Nummion uses the same distribution model as [HEY CLI](https://github.com/basecam
 
 ## One-time repository setup
 
-The repository and release configuration use `JangoCG/nummion`. The repository is currently private; public distribution has not been enabled.
+The public repository and release configuration use `JangoCG/nummion`. The private `nummion-release` GitHub App is installed only on `JangoCG/homebrew-tap`, and its credentials are configured in the `release` environment. The checklist below documents the setup for maintainers.
 
-1. Review and commit the local changes, then push them to `main` when authorized.
+1. Review and commit the local changes, then merge them into `main` through a pull request with successful required checks.
 2. Make the GitHub repository public when ready to publish its contents and history. Public installer links and the public Homebrew/Scoop tap require publicly downloadable releases. The workflow refuses publication from a different or private repository.
 3. Create a dedicated private GitHub App owned by `JangoCG`, with **Contents: read and write** and the required read-only Metadata permission. Disable webhooks and user authorization; install it only on `JangoCG/homebrew-tap`. In Nummion's **release environment**, store its client ID as the variable `RELEASE_CLIENT_ID` and its private key as the secret `RELEASE_APP_PRIVATE_KEY`. The workflow creates and revokes a short-lived installation token for each stable release. Both Homebrew (`Casks/nummion.rb`) and Scoop (`bucket/nummion.json`) use that token. GitHub's automatic `GITHUB_TOKEN` cannot write to a different repository. Never commit the private key or pass it in a command-line argument.
 4. The `release` environment is configured to accept only `v*` tags. Keep GitHub Actions enabled. The release job declares `contents: write` for release uploads and `id-token: write` for keyless signing; CI has read-only permissions.
