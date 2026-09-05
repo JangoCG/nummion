@@ -11,7 +11,7 @@ Nummion uses the system keychain or `LEXWARE_API_KEY` for Lexware credentials. K
 - CodeQL and dependency review are configured for public repositories. For a private repository with licensed code scanning, set the repository variable `CODEQL_ENABLED=true`; otherwise those jobs are explicitly skipped, not reported as successful scans.
 - Releases must pass CI and the Security workflow, use a tag on `main`, and run in the `release` environment. The environment accepts only `v*` tags. A GitHub App creates a short-lived token restricted to the Homebrew tap; the token is revoked at job completion.
 
-GitHub's native secret scanning and push protection are currently unavailable for this private repository (the API rejects activation). The Gitleaks checks run independently. Local Git hooks can be bypassed, so required pull-request checks provide the server-side gate. Neither pattern matching nor static analysis can guarantee detection of every possible secret format.
+GitHub's native secret scanning and push protection are enabled for this public repository. The Gitleaks checks run independently. Local Git hooks can be bypassed, so required pull-request checks provide the server-side gate. Neither pattern matching nor static analysis can guarantee detection of every possible secret format.
 
 ## Local setup
 

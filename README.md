@@ -29,7 +29,7 @@ Nummion is inspired by the [Byzantine *nummion*](https://tesauros.cultura.gob.es
 
 ## Installation
 
-The commands below become available after the first public release of `JangoCG/nummion`. Until then, use the source installation at the end of this section.
+Install a prebuilt release using one of the methods below, or build from source at the end of this section.
 
 ### mise (macOS, Linux, Windows)
 
