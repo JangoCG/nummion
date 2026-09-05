@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync/atomic"
 	"testing"
@@ -220,7 +221,14 @@ func TestVoucherDownloadUsesFileEndpointAndWritesSecurely(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(output, `"ok":true`) || !strings.Contains(output, target) {
+	var result struct {
+		OK   bool   `json:"ok"`
+		Path string `json:"path"`
+	}
+	if err := json.Unmarshal([]byte(output), &result); err != nil {
+		t.Fatalf("invalid JSON output: %v", err)
+	}
+	if !result.OK || result.Path != target {
 		t.Fatalf("output = %q", output)
 	}
 	data, err := os.ReadFile(target)
@@ -234,7 +242,8 @@ func TestVoucherDownloadUsesFileEndpointAndWritesSecurely(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := info.Mode().Perm(); got != 0o600 {
+	// Windows uses ACLs rather than Unix permission bits.
+	if got := info.Mode().Perm(); runtime.GOOS != "windows" && got != 0o600 {
 		t.Fatalf("mode = %o", got)
 	}
 }
