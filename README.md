@@ -117,7 +117,7 @@ brew upgrade --cask JangoCG/tap/nummion
 
 For Scoop, run `scoop update nummion`. For a script installation, run the installer again. For Go, rerun `go install`. Nummion does not yet have a built-in `num upgrade` command.
 
-Maintainers: see [RELEASING.md](RELEASING.md) for pipeline setup, signing, verification, and publishing.
+Maintainers: see [RELEASING.md](RELEASING.md) for publishing and signature verification.
 
 ## Getting started
 
@@ -596,7 +596,7 @@ The implementation uses only the documented Lexware Office base URL, `https://ap
 
 ## Security
 
-Secret scanning, dependency checks and release protections are described in [SECURITY.md](SECURITY.md). Install local commit and push checks with `mise exec -- make hooks`.
+Credential handling and security checks are described in [SECURITY.md](SECURITY.md). Install local commit and push checks with `mise exec -- make hooks`.
 
 ## License
 
