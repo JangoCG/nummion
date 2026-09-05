@@ -21,7 +21,7 @@ const (
 type unmanagedSkillDirError struct{ dir string }
 
 func (e *unmanagedSkillDirError) Error() string {
-	return fmt.Sprintf("%s existiert, wurde aber nicht von Nummion angelegt; verschiebe den Ordner, bevor der Lexware-Skill dort installiert wird", e.dir)
+	return fmt.Sprintf("%s existiert, wurde aber nicht von Nummion angelegt; verschiebe den Ordner, bevor der Nummion-Skill dort installiert wird", e.dir)
 }
 
 // claimSkillDir is the ownership gate for every skill write. It claims a
@@ -81,8 +81,8 @@ func ownedSkillDir(dir string) bool {
 func newSkillInstallCommand(opts *options) *cobra.Command {
 	return &cobra.Command{
 		Use:   "install",
-		Short: "Lexware-Skill global für erkannte Coding-Agents installieren",
-		Long:  "Kopiert SKILL.md nach ~/.agents/skills/lexware, verlinkt sie für Claude Code und kopiert sie in den aktiven Codex-Skill-Ordner, sofern die Agents erkannt werden.",
+		Short: "Nummion-Skill global für erkannte Coding-Agents installieren",
+		Long:  "Kopiert SKILL.md nach ~/.agents/skills/nummion, verlinkt sie für Claude Code und kopiert sie in den aktiven Codex-Skill-Ordner, sofern die Agents erkannt werden.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
 			return runSkillInstall(cmd, opts)
@@ -97,7 +97,7 @@ func runSkillInstall(cmd *cobra.Command, opts *options) error {
 	}
 
 	result := map[string]any{"ok": true, "skill_path": skillPath}
-	lines := []string{"Lexware-Skill installiert: " + skillPath}
+	lines := []string{"Nummion-Skill installiert: " + skillPath}
 
 	if harness.DetectClaude() {
 		notice, linkErr := linkSkillToClaude()
@@ -105,11 +105,11 @@ func runSkillInstall(cmd *cobra.Command, opts *options) error {
 			return linkErr
 		}
 		home, _ := os.UserHomeDir()
-		claudePath := filepath.Join(home, ".claude", "skills", "lexware")
+		claudePath := filepath.Join(home, ".claude", "skills", "nummion")
 		result["claude_skill_path"] = claudePath
 		if notice != "" {
 			result["claude_notice"] = notice
-			lines = append(lines, "Lexware-Skill für Claude Code kopiert: "+claudePath+" ("+notice+")")
+			lines = append(lines, "Nummion-Skill für Claude Code kopiert: "+claudePath+" ("+notice+")")
 		} else {
 			lines = append(lines, "Claude-Code-Symlink angelegt: "+claudePath+" → "+claudeSkillLinkTarget)
 		}
@@ -121,7 +121,12 @@ func runSkillInstall(cmd *cobra.Command, opts *options) error {
 			return codexErr
 		}
 		result["codex_skill_path"] = codexPath
-		lines = append(lines, "Lexware-Skill für Codex kopiert: "+codexPath)
+		lines = append(lines, "Nummion-Skill für Codex kopiert: "+codexPath)
+	}
+
+	if notices := retireLegacySkills(); len(notices) > 0 {
+		result["legacy_notices"] = notices
+		lines = append(lines, notices...)
 	}
 
 	printer := opts.printer(cmd)
@@ -146,10 +151,10 @@ func installSkillFiles(version string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Home-Ordner konnte nicht ermittelt werden: %w", err)
 	}
-	skillDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "lexware")
+	skillDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "nummion")
 	skillPath := filepath.Join(skillDir, skillFilename)
 
-	data, err := skills.FS.ReadFile("lexware/SKILL.md")
+	data, err := skills.FS.ReadFile("nummion/SKILL.md")
 	if err != nil {
 		return "", fmt.Errorf("eingebetteter Skill konnte nicht gelesen werden: %w", err)
 	}
@@ -167,7 +172,7 @@ func installSkillFiles(version string) (string, error) {
 
 // claudeSkillLinkTarget is both the relative link target and its provenance:
 // only a link with this exact target is considered safe to replace.
-var claudeSkillLinkTarget = filepath.Join("..", "..", ".agents", "skills", "lexware")
+var claudeSkillLinkTarget = filepath.Join("..", "..", ".agents", "skills", "nummion")
 
 var makeSkillSymlink = os.Symlink
 
@@ -176,9 +181,9 @@ func linkSkillToClaude() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Home-Ordner konnte nicht ermittelt werden: %w", err)
 	}
-	skillDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "lexware")
+	skillDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "nummion")
 	linkDir := filepath.Join(filepath.Clean(home), ".claude", "skills")
-	linkPath := filepath.Join(linkDir, "lexware")
+	linkPath := filepath.Join(linkDir, "nummion")
 
 	if !baselineSkillInstalled() {
 		return "", &unmanagedSkillDirError{dir: skillDir}
@@ -259,7 +264,7 @@ func installSkillToCodex() (string, error) {
 	if skillPath == "" {
 		return "", fmt.Errorf("Codex-Home-Ordner konnte nicht ermittelt werden")
 	}
-	data, err := skills.FS.ReadFile("lexware/SKILL.md")
+	data, err := skills.FS.ReadFile("nummion/SKILL.md")
 	if err != nil {
 		return "", fmt.Errorf("eingebetteter Skill konnte nicht gelesen werden: %w", err)
 	}
@@ -277,7 +282,7 @@ func baselineSkillInstalled() bool {
 	if err != nil {
 		return false
 	}
-	skillDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "lexware")
+	skillDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "nummion")
 	return harness.RegularSkillFile(filepath.Join(skillDir, skillFilename)) && ownedSkillDir(skillDir)
 }
 
@@ -286,7 +291,7 @@ func installedSkillVersion() string {
 	if err != nil {
 		return ""
 	}
-	data, err := os.ReadFile(filepath.Join(filepath.Clean(home), ".agents", "skills", "lexware", installedVersionFile))
+	data, err := os.ReadFile(filepath.Join(filepath.Clean(home), ".agents", "skills", "nummion", installedVersionFile))
 	if err != nil {
 		return ""
 	}

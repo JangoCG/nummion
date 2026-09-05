@@ -28,7 +28,7 @@ func TestSkillCommandPrintsEmbeddedSkill(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(output, "name: lexware") || !strings.Contains(output, "num invoices get <invoice_id> --json") {
+	if !strings.Contains(output, "name: nummion") || !strings.Contains(output, "num invoices get <invoice_id> --json") {
 		t.Fatalf("unexpected skill output: %q", output)
 	}
 }
@@ -42,7 +42,7 @@ func TestSkillInstallWritesBaseline(t *testing.T) {
 	if !strings.Contains(output, `"ok":true`) {
 		t.Fatalf("output = %q", output)
 	}
-	skillDir := filepath.Join(home, ".agents", "skills", "lexware")
+	skillDir := filepath.Join(home, ".agents", "skills", "nummion")
 	for _, name := range []string{skillFilename, installedVersionFile, ownershipMarkerFile} {
 		if info, err := os.Lstat(filepath.Join(skillDir, name)); err != nil || !info.Mode().IsRegular() {
 			t.Fatalf("%s missing or not regular: %v, %v", name, info, err)
@@ -66,7 +66,7 @@ func TestSkillInstallLinksClaudeAndCopiesCodex(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	claudePath := filepath.Join(home, ".claude", "skills", "lexware")
+	claudePath := filepath.Join(home, ".claude", "skills", "nummion")
 	info, err := os.Lstat(claudePath)
 	if err != nil || info.Mode()&os.ModeSymlink == 0 {
 		t.Fatalf("Claude skill is not a symlink: %v, %v", info, err)
@@ -75,7 +75,7 @@ func TestSkillInstallLinksClaudeAndCopiesCodex(t *testing.T) {
 		t.Fatalf("Claude target = %q, %v", target, err)
 	}
 
-	codexDir := filepath.Join(codexHome, "skills", "lexware")
+	codexDir := filepath.Join(codexHome, "skills", "nummion")
 	if !ownedSkillDir(codexDir) {
 		t.Fatalf("Codex skill directory is not marked as managed: %s", codexDir)
 	}
@@ -94,7 +94,7 @@ func TestSkillInstallCopyFallbackIsIdempotent(t *testing.T) {
 		if _, err := executeCommand(t, "--json", "skill", "install"); err != nil {
 			t.Fatalf("run %d: %v", run, err)
 		}
-		copyPath := filepath.Join(home, ".claude", "skills", "lexware")
+		copyPath := filepath.Join(home, ".claude", "skills", "nummion")
 		info, err := os.Lstat(copyPath)
 		if err != nil || !info.IsDir() || info.Mode()&os.ModeSymlink != 0 {
 			t.Fatalf("run %d: expected copied directory, got %v, %v", run, info, err)
@@ -107,11 +107,11 @@ func TestSkillInstallCopyFallbackIsIdempotent(t *testing.T) {
 
 func TestSkillInstallPreservesUnmanagedBaseline(t *testing.T) {
 	home := isolatedAgentHome(t)
-	skillDir := filepath.Join(home, ".agents", "skills", "lexware")
+	skillDir := filepath.Join(home, ".agents", "skills", "nummion")
 	if err := os.MkdirAll(skillDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	custom := []byte("# my own Lexware skill\n")
+	custom := []byte("# my own Nummion skill\n")
 	if err := os.WriteFile(filepath.Join(skillDir, skillFilename), custom, 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestSkillInstallPreservesUnmanagedBaseline(t *testing.T) {
 
 func TestSkillInstallPreservesForeignClaudeSkill(t *testing.T) {
 	home := isolatedAgentHome(t)
-	skillDir := filepath.Join(home, ".claude", "skills", "lexware")
+	skillDir := filepath.Join(home, ".claude", "skills", "nummion")
 	if err := os.MkdirAll(skillDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -151,7 +151,7 @@ func TestSkillInstallPreservesForeignClaudeSkill(t *testing.T) {
 func TestSkillInstallPreservesForeignCodexSkill(t *testing.T) {
 	home := isolatedAgentHome(t)
 	codexHome := filepath.Join(home, "codex-home")
-	skillDir := filepath.Join(codexHome, "skills", "lexware")
+	skillDir := filepath.Join(codexHome, "skills", "nummion")
 	if err := os.MkdirAll(skillDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -181,14 +181,14 @@ func TestSkillRefreshUpdatesOnlyManagedCopies(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	baseline := filepath.Join(home, ".agents", "skills", "lexware", skillFilename)
-	codex := filepath.Join(codexHome, "skills", "lexware", skillFilename)
+	baseline := filepath.Join(home, ".agents", "skills", "nummion", skillFilename)
+	codex := filepath.Join(codexHome, "skills", "nummion", skillFilename)
 	for _, path := range []string{baseline, codex} {
 		if err := os.WriteFile(path, []byte("stale"), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
-	versionPath := filepath.Join(home, ".agents", "skills", "lexware", installedVersionFile)
+	versionPath := filepath.Join(home, ".agents", "skills", "nummion", installedVersionFile)
 	if err := os.WriteFile(versionPath, []byte("old"), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -198,7 +198,7 @@ func TestSkillRefreshUpdatesOnlyManagedCopies(t *testing.T) {
 	}
 	for _, path := range []string{baseline, codex} {
 		data, err := os.ReadFile(path)
-		if err != nil || !strings.Contains(string(data), "name: lexware") {
+		if err != nil || !strings.Contains(string(data), "name: nummion") {
 			t.Fatalf("%s was not refreshed: %q, %v", path, data, err)
 		}
 	}

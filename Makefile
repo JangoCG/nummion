@@ -5,7 +5,7 @@ PREFIX ?= $(HOME)/.local
 
 build:
 	@mkdir -p bin
-	go build -trimpath -ldflags "-s -w -X main.version=$(VERSION)" -o bin/num ./cmd/num
+	go build -trimpath -ldflags "-s -w -X main.version=$(VERSION)" -o bin/num ./cmd/nummion
 
 install: build
 	install -d "$(PREFIX)/bin"

@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestLexwareSkillContainsAgentSafetyRules(t *testing.T) {
-	data, err := FS.ReadFile("lexware/SKILL.md")
+func TestNummionSkillContainsAgentSafetyRules(t *testing.T) {
+	data, err := FS.ReadFile("nummion/SKILL.md")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -21,7 +21,7 @@ func TestLexwareSkillContainsAgentSafetyRules(t *testing.T) {
 		"--dry-run --json",
 	} {
 		if !strings.Contains(content, want) {
-			t.Errorf("embedded Lexware skill does not contain %q", want)
+			t.Errorf("embedded Nummion skill does not contain %q", want)
 		}
 	}
 }

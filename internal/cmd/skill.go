@@ -15,7 +15,7 @@ func newSkillCommand(opts *options) *cobra.Command {
 		Long:  "Gibt die in Nummion eingebettete SKILL.md aus oder installiert sie für erkannte Coding-Agents.",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
-			data, err := skills.FS.ReadFile("lexware/SKILL.md")
+			data, err := skills.FS.ReadFile("nummion/SKILL.md")
 			if err != nil {
 				return fmt.Errorf("eingebetteter Skill konnte nicht gelesen werden: %w", err)
 			}

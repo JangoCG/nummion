@@ -104,7 +104,7 @@ num --help
 
 By default, `make install` writes `~/.local/bin/num` and a compatibility symlink named `lexware` for existing scripts. Published packages expose `num`. Set `PREFIX=/usr/local` for a different prefix, or run `mise exec -- make build` and use `./bin/num` directly.
 
-Go 1.25 or newer is required; the pinned development version is in [`.mise.toml`](.mise.toml). The existing keychain service (`lexware-cli`), environment variable (`LEXWARE_API_KEY`), skill name (`lexware`), and skill ownership marker remain compatible with earlier installations.
+Go 1.25 or newer is required; the pinned development version is in [`.mise.toml`](.mise.toml). The existing keychain service (`lexware-cli`) and environment variable (`LEXWARE_API_KEY`) remain compatible with earlier installations.
 
 ### Upgrading
 
@@ -437,20 +437,22 @@ The input must contain exactly one JSON object. Multiple values, arrays, and emp
 
 ## AI agent integration
 
-Nummion includes an embedded agent skill. It teaches agents the CLI's commands, ID relationships, output formats, and safety rules.
+Nummion includes an embedded agent skill named `nummion` (`$nummion` in Codex, `/nummion` in Claude Code). It teaches agents the CLI's commands, ID relationships, output formats, and safety rules.
 
 ```bash
 num skill           # print the embedded SKILL.md to stdout
 num skill install   # install the skill globally and for detected agents
 ```
 
-The installer places the shared copy at `~/.agents/skills/lexware/SKILL.md`.
+The installer places the shared copy at `~/.agents/skills/nummion/SKILL.md`.
 
-- Claude Code receives a symlink at `~/.claude/skills/lexware`. If symlinks are unavailable, the files are copied safely instead.
-- Codex receives a copy at `$CODEX_HOME/skills/lexware/SKILL.md`, or at `~/.codex/skills/lexware/SKILL.md` by default.
+- Claude Code receives a symlink at `~/.claude/skills/nummion`. If symlinks are unavailable, the files are copied safely instead.
+- Codex receives a copy at `$CODEX_HOME/skills/nummion/SKILL.md`, or at `~/.codex/skills/nummion/SKILL.md` by default.
 - Agents that are not detected are left unchanged.
 
-Every skill directory managed by the CLI carries a `.managed-by-lexware-cli` marker. An existing unmarked directory, foreign file, or foreign symlink is never claimed or overwritten. After a version change, the CLI refreshes only installed, marked copies.
+Every skill directory managed by the CLI carries a `.managed-by-nummion` marker. An existing unmarked directory, foreign file, or foreign symlink is never claimed or overwritten. After a version change, the CLI refreshes only installed, marked copies.
+
+Upgrading from v0.1.0: run `num skill install` again to install the renamed `nummion` skill. After a successful install, unchanged CLI-managed `lexware` skills from v0.1.0 are removed. Customized or foreign skills remain untouched and are reported for manual review. Update references in your agent instructions from `$lexware` or `/lexware` to `$nummion` or `/nummion`.
 
 In particular, the skill instructs agents to:
 
@@ -534,7 +536,7 @@ Downloads do not overwrite existing files. Choose a new destination path, or use
 
 ### Skill directory is not overwritten
 
-If an unmarked `lexware` skill directory already exists, installation stops intentionally. Move or back up the existing directory yourself, then run:
+If an unmarked `nummion` skill directory already exists, installation stops intentionally. Move or back up the existing directory yourself, then run:
 
 ```bash
 num skill install
@@ -547,15 +549,15 @@ The CLI never deletes or claims foreign skill installations automatically.
 ### Repository structure
 
 ```text
-cmd/num/              Program entry point
-cmd/lexware/          Legacy source entry point
+cmd/nummion/          Program entry point (builds num)
+cmd/num/              Compatibility entry point for go install
 internal/api/         HTTP client, rate limiting, and API errors
 internal/cmd/         Cobra commands and workflows
 internal/credentials/ System keychain and environment variable
 internal/harness/     Agent detection and skill paths
 internal/output/      Table and JSON output
 internal/payload/     Safe JSON input
-skills/lexware/       Embedded agent skill
+skills/nummion/       Embedded agent skill
 examples/             Example payloads
 ```
 

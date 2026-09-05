@@ -15,7 +15,7 @@ func refreshSkillsIfVersionChanged(version string) bool {
 	if version == "" || version == "dev" || !baselineSkillInstalled() || installedSkillVersion() == version {
 		return false
 	}
-	embedded, err := skills.FS.ReadFile("lexware/SKILL.md")
+	embedded, err := skills.FS.ReadFile("nummion/SKILL.md")
 	if err != nil {
 		return false
 	}
@@ -50,7 +50,7 @@ func refreshSkillsIfVersionChanged(version string) bool {
 	if err != nil {
 		return false
 	}
-	baselineDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "lexware")
+	baselineDir := filepath.Join(filepath.Clean(home), ".agents", "skills", "nummion")
 	if !ownedSkillDir(baselineDir) {
 		return false
 	}
@@ -61,8 +61,8 @@ func skillRefreshLocations() []string {
 	var locations []string
 	if home, err := os.UserHomeDir(); err == nil && home != "" {
 		locations = append(locations,
-			filepath.Join(filepath.Clean(home), ".agents", "skills", "lexware", skillFilename),
-			filepath.Join(filepath.Clean(home), ".claude", "skills", "lexware", skillFilename),
+			filepath.Join(filepath.Clean(home), ".agents", "skills", "nummion", skillFilename),
+			filepath.Join(filepath.Clean(home), ".claude", "skills", "nummion", skillFilename),
 		)
 	}
 	if codexPath := harness.CodexSkillPath(); codexPath != "" {
